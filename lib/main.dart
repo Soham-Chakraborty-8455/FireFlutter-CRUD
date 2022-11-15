@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -42,6 +46,21 @@ class _MyAppState extends State<MyApp> {
     });
   }
   @override
+  CollectionReference users = FirebaseFirestore.instance.collection('users');
+
+  Future<void> addUser() {
+    // Call the user's CollectionReference to add a new user
+    return users
+        .add({
+      'Name': namecontroller, // John Doe
+      'Phone': phonecontroller, // Stokes and Sons
+      'Age': agecontroller, // 42
+      'Department': dropdownvalue,
+      'picture': _image,
+    })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,12 +73,12 @@ class _MyAppState extends State<MyApp> {
       bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.arrow_back),
-              label: 'SCREEN 1',
+              icon: Text("SCREEN 1"),
+              label: '',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.arrow_forward),
-              label: 'SCREEN 2',
+              icon: Text("SCREEN 2"),
+              label: '',
             ),
         ],
       ),
@@ -182,12 +201,15 @@ class _MyAppState extends State<MyApp> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 50.00),
-              child: ElevatedButton(
-                  onPressed: (){},
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Save'),
-                  )
+              child: GestureDetector(
+                onTap: addUser,
+                child: ElevatedButton(
+                    onPressed: (){},
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text('Save'),
+                    )
+                ),
               ),
             ),
           ],
